@@ -48,7 +48,7 @@ def run_tui(client: ArtifactoryClient, args: argparse.Namespace) -> int:
         return 1
 
     initial_repo_filter = args.repository if args.repository else None
-    picked_repo, picked_filter = open_repository_picker(repositories, initial_repo_filter)
+    picked_repo, _picked_filter = open_repository_picker(repositories, initial_repo_filter)
     if not picked_repo:
         console.print("[yellow]No repository selected. Exiting.[/yellow]")
         return 0
@@ -56,7 +56,9 @@ def run_tui(client: ArtifactoryClient, args: argparse.Namespace) -> int:
 
     config = SearchConfig(
         repository=repository,
-        query=validate_query(args.query) or validate_query(picked_filter),
+        # Repository picker filter is only for selecting repository names.
+        # Artifact query must be controlled independently.
+        query=validate_query(args.query),
         max_results=validate_max_results(args.max_results),
         min_score=validate_min_score(float(args.min_score)),
     )
@@ -124,10 +126,9 @@ def run_tui(client: ArtifactoryClient, args: argparse.Namespace) -> int:
         if browser_action == "refresh":
             continue
         if browser_action == "repo":
-            picked_repo, picked_filter = open_repository_picker(repositories, config.repository)
+            picked_repo, _picked_filter = open_repository_picker(repositories, config.repository)
             if picked_repo:
                 config.repository = validate_repository(picked_repo)
-                config.query = validate_query(picked_filter)
             continue
         if browser_action != "delete":
             continue
