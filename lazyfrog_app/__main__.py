@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from lazyfrog_app.main import main_with_exit
 
 

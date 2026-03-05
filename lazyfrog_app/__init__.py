@@ -1,0 +1,1 @@
+"""lazyfrog application package."""
