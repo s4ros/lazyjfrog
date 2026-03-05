@@ -106,7 +106,11 @@ def run_tui(client: ArtifactoryClient, args: argparse.Namespace) -> int:
             if action in ("x", "exit"):
                 return 0
             if action in ("r", "repo", "repository"):
+                previous_repo = config.repository
                 config.repository = ask_for_repository(config.repository)
+                if config.repository != previous_repo:
+                    # Reset artifact finding when search scope changes to another repository.
+                    config.query = None
             elif action in ("q", "query"):
                 config.query = ask_for_query(config.query)
             elif action in ("f", "filters"):
@@ -126,9 +130,13 @@ def run_tui(client: ArtifactoryClient, args: argparse.Namespace) -> int:
         if browser_action == "refresh":
             continue
         if browser_action == "repo":
+            previous_repo = config.repository
             picked_repo, _picked_filter = open_repository_picker(repositories, config.repository)
             if picked_repo:
                 config.repository = validate_repository(picked_repo)
+                if config.repository != previous_repo:
+                    # Reset artifact finding when search scope changes to another repository.
+                    config.query = None
             continue
         if browser_action != "delete":
             continue
